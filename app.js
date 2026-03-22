@@ -708,8 +708,12 @@ window.saveTrade = async function() {
 window.renderSidebar = function() {
   const q  = (g('searchBox')?.value || '').toLowerCase()
   const fo = g('filterOutcome')?.value || ''
+  const fb = g('filterBias')?.value || ''
+  const fw = g('filterWave')?.value || ''
   const list = trades.filter(t => {
     if (fo && t.outcome !== fo) return false
+    if (fb && t.bias !== fb) return false
+    if (fw && !(t.waves||'').split(',').includes(fw)) return false
     if (q && !JSON.stringify(t).toLowerCase().includes(q)) return false
     return true
   })
@@ -722,8 +726,12 @@ window.renderSidebar = function() {
 window.renderMobileList = function() {
   const q  = (g('mSearchBox')?.value || '').toLowerCase()
   const fo = g('mFilterOutcome')?.value || ''
+  const fb = g('mFilterBias')?.value || ''
+  const fw = g('mFilterWave')?.value || ''
   const list = trades.filter(t => {
     if (fo && t.outcome !== fo) return false
+    if (fb && t.bias !== fb) return false
+    if (fw && !(t.waves||'').split(',').includes(fw)) return false
     if (q && !JSON.stringify(t).toLowerCase().includes(q)) return false
     return true
   })
@@ -1035,6 +1043,14 @@ function renderStats() {
 // ═══════════════════════════════════════════════════════
 // EXPORT CSV
 // ═══════════════════════════════════════════════════════
+window.clearFilters = function() {
+  const ids = ['searchBox','filterOutcome','filterBias','filterWave',
+               'mSearchBox','mFilterOutcome','mFilterBias','mFilterWave']
+  ids.forEach(id => { const el = g(id); if (el) el.value = '' })
+  renderSidebar()
+  renderMobileList()
+}
+ 
 window.exportCSV = function() {
   if (!trades.length) { toast('Belum ada data.'); return }
   const cols = ['num','date','session','bias','waves','subwave','h1ctx','h1pat','entry','sl','tp1','tp2','tp3','m15pat','m15ctx','zonestr','outcome','pnl','good','bad','rule']
