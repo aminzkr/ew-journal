@@ -1,13 +1,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
+ 
 // ═══════════════════════════════════════════════════════
 // CONFIG — ganti dengan credentials Supabase kamu
 // ═══════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://elxgqfbjxhdtijalihde.supabase.co'
 const SUPABASE_ANON = 'sb_publishable_0FjGCdf_p8qOjKpUZtg1Pg_NaBsvVsl'
-
+ 
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON)
-
+ 
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
@@ -17,9 +17,9 @@ let currentOutcome = null
 let currentImages = { H1: null, M15: null, M1: null }
 let selectedTradeId = null
 let currentView = 'form'
-
+ 
 const g = id => document.getElementById(id)
-
+ 
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
@@ -38,7 +38,7 @@ async function init() {
     console.error(err)
   }
 }
-
+ 
 function setSyncStatus(state) {
   const el = g('syncStatus')
   if (!el) return
@@ -46,7 +46,7 @@ function setSyncStatus(state) {
   else if (state === 'err') { el.textContent = '● Offline'; el.className = 'sync-status err' }
   else { el.textContent = '● Connecting...'; el.className = 'sync-status' }
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // SUPABASE — TRADES
 // ═══════════════════════════════════════════════════════
@@ -55,17 +55,17 @@ async function loadTrades() {
   if (error) throw error
   trades = data || []
 }
-
+ 
 async function upsertTrade(t) {
   const { error } = await sb.from('trades').upsert(t, { onConflict: 'id' })
   if (error) throw error
 }
-
+ 
 async function removeTrade(id) {
   const { error } = await sb.from('trades').delete().eq('id', id)
   if (error) throw error
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // SUPABASE — IMAGES (Storage)
 // ═══════════════════════════════════════════════════════
@@ -78,18 +78,18 @@ async function uploadImage(tradeId, tf, dataUrl) {
   if (error) throw error
   return path
 }
-
+ 
 async function getImageUrl(tradeId, tf) {
   const path = `${tradeId}/${tf}.jpg`
   const { data } = sb.storage.from('chart-images').getPublicUrl(path)
   return data?.publicUrl || null
 }
-
+ 
 async function deleteImages(tradeId) {
   const paths = ['H1', 'M15', 'M1'].map(tf => `${tradeId}/${tf}.jpg`)
   await sb.storage.from('chart-images').remove(paths)
 }
-
+ 
 function dataURLtoBlob(dataUrl) {
   const [header, data] = dataUrl.split(',')
   const mime = header.match(/:(.*?);/)[1]
@@ -98,7 +98,7 @@ function dataURLtoBlob(dataUrl) {
   for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i)
   return new Blob([arr], { type: mime })
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // VIEWS
 // ═══════════════════════════════════════════════════════
@@ -113,7 +113,7 @@ window.showView = function(v, el) {
   if (v === 'detail' && selectedTradeId) renderDetail(selectedTradeId)
   if (v === 'list') renderMobileList()
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // BUILD FORM HTML (called once)
 // ═══════════════════════════════════════════════════════
@@ -138,7 +138,7 @@ function buildForm() {
       </div>
     </div>
   </div>
-
+ 
   <!-- SECTION 1: H1 -->
   <div class="form-section">
     <div class="sec-head"><div class="sec-num">1</div><h3>H1 WAVE MAPPING</h3><span>structure · dual scenario</span></div>
@@ -184,7 +184,7 @@ function buildForm() {
     </div>
     <div class="field">${uploadZoneHTML('H1','📊','Screenshot H1','Drag & drop atau klik')}</div>
   </div>
-
+ 
   <!-- SECTION 2: ZONE -->
   <div class="form-section">
     <div class="sec-head"><div class="sec-num">2</div><h3>ZONE H1 · M15 & FIBONACCI</h3><span>fibo · confluence · pattern</span></div>
@@ -224,7 +224,7 @@ function buildForm() {
     </div>
     <div class="field">${uploadZoneHTML('M15','📈','Screenshot M15','Tandai zone fibo + pattern')}</div>
   </div>
-
+ 
   <!-- SECTION 3: ENTRY -->
   <div class="form-section">
     <div class="sec-head"><div class="sec-num">3</div><h3>ENTRY M1 — 3 KONFIRMASI</h3><span>choch · rejection · candle</span></div>
@@ -252,7 +252,7 @@ function buildForm() {
     </div>
     <div class="field">${uploadZoneHTML('M1','🎯','Screenshot M1','Tandai CHoCH, fractal, entry candle')}</div>
   </div>
-
+ 
   <!-- SECTION 4: TP & SL -->
   <div class="form-section">
     <div class="sec-head"><div class="sec-num">4</div><h3>TP · SL · INVALIDASI</h3><span>target · risk · r:r</span></div>
@@ -278,7 +278,7 @@ function buildForm() {
       <div class="field"><label>H1 Scenario Invalidation</label><input id="f_h1inv" type="text" placeholder="e.g. Break above 3360 invalidates count"></div>
     </div>
   </div>
-
+ 
   <!-- POST TRADE -->
   <div class="form-section">
     <div class="sec-head"><div class="sec-num">✓</div><h3>POST-TRADE REVIEW</h3><span>outcome · lessons</span></div>
@@ -297,19 +297,19 @@ function buildForm() {
       <div class="field span2"><label>Rule / Pattern baru ditemukan</label><textarea id="f_rule" rows="2" placeholder="e.g. Pada W3 XAUUSD, fibo 0.618 selalu direspek di London session..."></textarea></div>
     </div>
   </div>
-
+ 
   <div class="form-actions">
     <button class="btn btn-ghost" onclick="resetForm()">🗑 Clear</button>
     <button class="btn btn-gold" id="saveBtn" onclick="saveTrade()">💾 Simpan Trade</button>
   </div>
   `
-
+ 
   // init upload zones
   ;['H1','M15','M1'].forEach(tf => initUploadZone(tf))
-
+ 
   resetForm()
 }
-
+ 
 // ── Option generators ──
 function h1CtxOptions() {
   return `
@@ -341,7 +341,7 @@ function h1CtxOptions() {
       <option>Complex correction — re-count needed</option>
     </optgroup>`
 }
-
+ 
 function h1PatOptions() {
   return `
     <optgroup label="── IMPULSE ──">
@@ -373,7 +373,7 @@ function h1PatOptions() {
       <option>Combination correction</option>
     </optgroup>`
 }
-
+ 
 function m15PatOptions() {
   return `
     <optgroup label="── IMPULSE ──">
@@ -409,7 +409,7 @@ function m15PatOptions() {
       <option>Inverse Head & Shoulders</option>
     </optgroup>`
 }
-
+ 
 function candleOptions() {
   return `
     <optgroup label="── ENGULFING ──">
@@ -448,7 +448,7 @@ function candleOptions() {
       <option>Other</option>
     </optgroup>`
 }
-
+ 
 function fiboTableHTML() {
   const rows = [
     ['0.236','','Early retest',''],
@@ -472,7 +472,7 @@ function fiboTableHTML() {
     </tbody>
   </table>`
 }
-
+ 
 function uploadZoneHTML(tf, icon, label, sub) {
   return `<label style="font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--muted2);text-transform:uppercase;display:block;margin-bottom:4px;">${label}</label>
   <div class="upload-zone" id="uz_${tf}">
@@ -487,13 +487,13 @@ function uploadZoneHTML(tf, icon, label, sub) {
     <img id="uzimg_${tf}" style="display:none;" alt="${tf} chart">
   </div>`
 }
-
+ 
 function initUploadZone(tf) {
   const uz   = g('uz_'+tf)
   const fi   = g('fi_'+tf)
   const ovDel = uz.querySelector('.uz-btn-del')
   const ovFull = uz.querySelector('.uz-btn-full')
-
+ 
   uz.addEventListener('click', e => {
     if (!currentImages[tf]) fi.click()
   })
@@ -511,13 +511,13 @@ function initUploadZone(tf) {
     if (currentImages[tf]) { g('lbImg').src = currentImages[tf]; g('lightbox').classList.add('show') }
   })
 }
-
+ 
 function readImg(file, tf) {
   const reader = new FileReader()
   reader.onload = e => { currentImages[tf] = e.target.result; showUpload(tf, e.target.result) }
   reader.readAsDataURL(file)
 }
-
+ 
 function showUpload(tf, src) {
   const uz = g('uz_'+tf)
   g('uzimg_'+tf).src = src; g('uzimg_'+tf).style.display = 'block'
@@ -527,7 +527,7 @@ function showUpload(tf, src) {
   g('uzov_'+tf).style.display = 'flex'
   uz.classList.add('has-img')
 }
-
+ 
 function clearUpload(tf) {
   const uz = g('uz_'+tf)
   currentImages[tf] = null
@@ -539,7 +539,7 @@ function clearUpload(tf) {
   g('fi_'+tf).value = ''
   uz.classList.remove('has-img')
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // FORM HELPERS
 // ═══════════════════════════════════════════════════════
@@ -556,13 +556,13 @@ function setWaves(str) {
     if (btn) btn.classList.add('sel-'+btn.dataset.type)
   })
 }
-
+ 
 window.toggleChk = function(el) { el.classList.toggle('checked') }
 function getChks() { return [...document.querySelectorAll('.chk-item')].map(e=>e.classList.contains('checked')?'1':'0').join('') }
 function setChks(str) {
   document.querySelectorAll('.chk-item').forEach((el,i) => el.classList.toggle('checked', !!(str && str[i]==='1')))
 }
-
+ 
 function getFibo() {
   const r = {}
   document.querySelectorAll('.fi').forEach(i => { if (i.value) r[i.dataset.l] = i.value })
@@ -571,13 +571,13 @@ function getFibo() {
 function setFibo(obj) {
   document.querySelectorAll('.fi').forEach(i => { i.value = (obj && obj[i.dataset.l]) || '' })
 }
-
+ 
 window.setOutcome = function(val, btn) {
   currentOutcome = val
   document.querySelectorAll('.out-btn').forEach(b => b.classList.remove('sel'))
   btn.classList.add('sel')
 }
-
+ 
 window.autoFibo = function() {
   const high = parseFloat(g('ac_high').value)
   const low  = parseFloat(g('ac_low').value)
@@ -592,7 +592,7 @@ window.autoFibo = function() {
       : (l <= 1 ? (low  + diff*l).toFixed(2) : (low  - diff*(l-1)).toFixed(2))
   })
 }
-
+ 
 window.calcRR = function() {
   const entry = parseFloat(g('f_entry')?.value)
   const sl    = parseFloat(g('f_sl')?.value)
@@ -609,18 +609,18 @@ window.calcRR = function() {
     el.style.color = rr >= 2 ? 'var(--green)' : rr >= 1 ? 'var(--gold)' : 'var(--red)'
   }
 }
-
+ 
 function sv(id, val) {
   const el = g(id)
   if (!el) return
   el.value = val || ''
 }
-
+ 
 window.resetForm = function() {
   editingId = null; currentOutcome = null
   g('editBanner').style.display = 'none'
   if (g('saveBtn')) g('saveBtn').textContent = '💾 Simpan Trade'
-
+ 
   const fields = ['f_num','f_date','f_session','f_bias','f_subwave','f_h1ctx','f_h1pat',
     'f_swingHigh','f_swingLow','f_s1','f_inv1','f_s2','f_inv2',
     'f_m15pat','f_m15ctx','f_zonestr','f_entry','f_time','f_ezone',
@@ -628,19 +628,19 @@ window.resetForm = function() {
     'f_riskpips','f_rewpips','f_slbasis','f_wcinv','f_h1inv','f_pnl','f_good','f_bad','f_rule',
     'ac_high','ac_low']
   fields.forEach(id => sv(id, ''))
-
+ 
   setWaves(''); setChks(''); setFibo({})
   document.querySelectorAll('.out-btn').forEach(b => b.classList.remove('sel'))
   const rrEl = g('rrVal'); if (rrEl) { rrEl.textContent = '—'; rrEl.style.color = 'var(--gold)' }
   ;['H1','M15','M1'].forEach(tf => { clearUpload(tf); currentImages[tf] = null })
-
+ 
   if (g('f_date')) g('f_date').value = new Date().toISOString().slice(0,10)
   if (g('f_num'))  g('f_num').value  = 'BT-' + String(trades.length + 1).padStart(3,'0')
 }
-
+ 
 window.cancelEdit = function() { resetForm() }
 window.newTrade   = function() { showView('form'); resetForm() }
-
+ 
 // ═══════════════════════════════════════════════════════
 // SAVE TRADE
 // ═══════════════════════════════════════════════════════
@@ -648,7 +648,7 @@ window.saveTrade = async function() {
   const btn = g('saveBtn')
   btn.textContent = '⏳ Menyimpan...'
   btn.disabled = true
-
+ 
   try {
     const id = editingId || ('BT-' + Date.now())
     const t = {
@@ -675,14 +675,14 @@ window.saveTrade = async function() {
       good: g('f_good').value, bad: g('f_bad').value, rule: g('f_rule').value,
       updated_at: new Date().toISOString()
     }
-
-    // Upload images
+ 
+    // Upload images — skip '__existing__' (not changed during edit)
     for (const tf of ['H1','M15','M1']) {
-      if (currentImages[tf]) {
+      if (currentImages[tf] && currentImages[tf] !== '__existing__') {
         await uploadImage(id, tf, currentImages[tf])
       }
     }
-
+ 
     await upsertTrade(t)
     await loadTrades()
     selectedTradeId = id
@@ -701,7 +701,7 @@ window.saveTrade = async function() {
     btn.disabled = false
   }
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // SIDEBAR
 // ═══════════════════════════════════════════════════════
@@ -718,7 +718,7 @@ window.renderSidebar = function() {
   if (!list.length) { el.innerHTML = '<div class="empty-state" style="padding:30px 0;"><div class="empty-icon">📋</div><p>Tidak ada trade.</p></div>'; return }
   el.innerHTML = list.map(t => tradeCardHTML(t)).join('')
 }
-
+ 
 window.renderMobileList = function() {
   const q  = (g('mSearchBox')?.value || '').toLowerCase()
   const fo = g('mFilterOutcome')?.value || ''
@@ -732,7 +732,7 @@ window.renderMobileList = function() {
   if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>Tidak ada trade.</p></div>'; return }
   el.innerHTML = list.map(t => tradeCardHTML(t)).join('')
 }
-
+ 
 function tradeCardHTML(t) {
   const oc  = t.outcome || ''
   const cls = oc==='WIN'?'win':oc==='LOSS'?'loss':oc==='BE'?'be':''
@@ -755,7 +755,7 @@ function tradeCardHTML(t) {
     </div>
   </div>`
 }
-
+ 
 function updateCount() {
   const wins  = trades.filter(t=>t.outcome==='WIN').length
   const total = trades.filter(t=>t.outcome).length
@@ -763,7 +763,7 @@ function updateCount() {
   const el    = g('tradeCount')
   if (el) el.textContent = `${trades.length} trades · ${wr}% WR`
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // SELECT → DETAIL
 // ═══════════════════════════════════════════════════════
@@ -773,21 +773,21 @@ window.selectTrade = function(id) {
   document.querySelectorAll(`#tc_${id}`).forEach(c => c.classList.add('active'))
   showView('detail')
 }
-
+ 
 window.renderDetail = async function(id) {
   const t = trades.find(x => x.id === id)
   if (!t) return
-
+ 
   // Get image URLs from Supabase Storage
   const imgUrls = {}
   for (const tf of ['H1','M15','M1']) {
     imgUrls[tf] = await getImageUrl(id, tf)
   }
-
+ 
   const oc = t.outcome || 'OPEN'
   const ocColor = oc==='WIN'?'var(--green)':oc==='LOSS'?'var(--red)':oc==='BE'?'var(--blue)':'var(--muted2)'
   const p = t.pnl || 0
-
+ 
   g('detailContent').innerHTML = `
     <div class="detail-header">
       <div>
@@ -802,7 +802,7 @@ window.renderDetail = async function(id) {
       </div>
       <button class="btn btn-gold btn-sm" onclick="editTrade('${t.id}')">✏ Edit</button>
     </div>
-
+ 
     <div class="img-grid">
       ${['H1','M15','M1'].map(tf => `
         <div class="img-box" onclick="${imgUrls[tf]?`openImgLightbox('${imgUrls[tf]}')`:''}" style="${!imgUrls[tf]?'cursor:default':''}">
@@ -811,7 +811,7 @@ window.renderDetail = async function(id) {
             : `<div class="no-img">📷<br>${tf}<br><span style="opacity:.5">No screenshot</span></div>`}
         </div>`).join('')}
     </div>
-
+ 
     <div class="data-grid">
       ${[
         ['Entry', t.entry||'—'], ['SL', t.sl||'—'], ['TP-1', t.tp1||'—'],
@@ -825,7 +825,7 @@ window.renderDetail = async function(id) {
           <div class="data-cell-val">${v}</div>
         </div>`).join('')}
     </div>
-
+ 
     ${t.scenario1||t.scenario2 ? `
     <div class="scenario-grid">
       <div class="scenario-box sb-primary">
@@ -839,7 +839,7 @@ window.renderDetail = async function(id) {
         ${t.inv2 ? `<div style="font-family:var(--mono);font-size:10px;color:var(--red);margin-top:6px;">Inv: ${t.inv2}</div>` : ''}
       </div>
     </div>` : ''}
-
+ 
     ${t.good||t.bad||t.rule ? `
     <div class="review-box">
       <div class="review-box-title">POST-TRADE REVIEW</div>
@@ -849,14 +849,14 @@ window.renderDetail = async function(id) {
     </div>` : ''}
   `
 }
-
+ 
 window.openImgLightbox = function(url) {
   g('lbImg').src = url
   g('lightbox').classList.add('show')
 }
 window.closeLightbox = function() { g('lightbox').classList.remove('show') }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox() })
-
+ 
 // ═══════════════════════════════════════════════════════
 // EDIT TRADE
 // ═══════════════════════════════════════════════════════
@@ -867,7 +867,7 @@ window.editTrade = async function(id) {
   showView('form')
   resetForm()
   editingId = id
-
+ 
   sv('f_num', t.num); sv('f_date', t.date); sv('f_session', t.session); sv('f_bias', t.bias)
   sv('f_subwave', t.subwave); sv('f_h1ctx', t.h1ctx); sv('f_h1pat', t.h1pat)
   sv('f_swingHigh', t.swing_high); sv('f_swingLow', t.swing_low)
@@ -879,14 +879,14 @@ window.editTrade = async function(id) {
   sv('f_sl', t.sl); sv('f_tp1', t.tp1); sv('f_tp2', t.tp2); sv('f_tp3', t.tp3)
   sv('f_slbasis', t.slbasis); sv('f_wcinv', t.wcinv); sv('f_h1inv', t.h1inv)
   sv('f_pnl', t.pnl); sv('f_good', t.good); sv('f_bad', t.bad); sv('f_rule', t.rule)
-
+ 
   setWaves(t.waves); setChks(t.checks); setFibo(t.fibo)
   if (t.outcome) {
     currentOutcome = t.outcome
     document.querySelector(`.out-btn.${t.outcome.toLowerCase()}`)?.classList.add('sel')
   }
   calcRR()
-
+ 
   // Load images from Supabase Storage
   for (const tf of ['H1','M15','M1']) {
     const url = await getImageUrl(id, tf)
@@ -905,12 +905,12 @@ window.editTrade = async function(id) {
       }
     }
   }
-
+ 
   g('editBanner').style.display = 'flex'
   g('editLabel').textContent = `${t.num||id} · ${t.waves||'?'} ${t.subwave||''}`
   g('saveBtn').textContent = '💾 Update Trade'
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // DELETE TRADE
 // ═══════════════════════════════════════════════════════
@@ -931,7 +931,7 @@ window.deleteTrade = async function(id) {
     toast('❌ Gagal hapus: ' + err.message)
   }
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // HISTORY
 // ═══════════════════════════════════════════════════════
@@ -964,7 +964,7 @@ function renderHistory() {
       </table>
     </div>`
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // STATS
 // ═══════════════════════════════════════════════════════
@@ -974,7 +974,7 @@ function renderStats() {
   const losses = closed.filter(t => t.outcome==='LOSS')
   const wr     = closed.length ? (wins.length/closed.length*100).toFixed(1) : '—'
   const totalPips = closed.reduce((s,t) => s+(t.pnl||0), 0)
-
+ 
   const avgRR = (() => {
     const rrs = trades.filter(t=>t.sl&&t.entry&&t.tp1).map(t=>{
       const r=Math.abs(t.entry-t.sl); const rw=Math.abs(t.tp1-t.entry)
@@ -982,7 +982,7 @@ function renderStats() {
     }).filter(x=>x>0)
     return rrs.length ? (rrs.reduce((a,b)=>a+b,0)/rrs.length).toFixed(2) : '—'
   })()
-
+ 
   const makeMap = key => {
     const m = {}
     closed.forEach(t => {
@@ -993,7 +993,7 @@ function renderStats() {
     })
     return m
   }
-
+ 
   const barRow = (label, w, l) => {
     const tot=w+l; const pct=tot?Math.round(w/tot*100):0
     const color = pct>=50?'var(--green)':'var(--red)'
@@ -1004,11 +1004,11 @@ function renderStats() {
       <div class="bar-counts">${w}W/${l}L</div>
     </div>`
   }
-
+ 
   const wvMap = makeMap('waves')
   const ssMap = makeMap('session')
   const m15Map = makeMap('m15pat')
-
+ 
   g('statsContent').innerHTML = `
     <div class="stats-row">
       <div class="stat-box"><label>TOTAL TRADES</label><div class="stat-val" style="color:var(--gold)">${trades.length}</div><div class="stat-sub">${closed.length} closed</div></div>
@@ -1031,7 +1031,7 @@ function renderStats() {
       </div>
     </div>`
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // EXPORT CSV
 // ═══════════════════════════════════════════════════════
@@ -1044,7 +1044,7 @@ window.exportCSV = function() {
   a.download = `EW_Journal_${new Date().toISOString().slice(0,10)}.csv`
   a.click()
 }
-
+ 
 // ═══════════════════════════════════════════════════════
 // TOAST
 // ═══════════════════════════════════════════════════════
@@ -1053,6 +1053,7 @@ window.toast = function(msg) {
   el.textContent = msg; el.classList.add('show')
   setTimeout(() => el.classList.remove('show'), 2800)
 }
-
+ 
 // ── BOOT ──
 init()
+ 
