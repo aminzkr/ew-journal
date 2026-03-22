@@ -29,6 +29,7 @@ async function init() {
     await loadTrades()
     setSyncStatus('ok')
     buildForm()
+  hookPatternPopups()
     renderSidebar()
     renderMobileList()
     updateCount()
@@ -1072,4 +1073,380 @@ window.toast = function(msg) {
  
 // ── BOOT ──
 init()
+ 
+// ═══════════════════════════════════════════════════════
+// PATTERN POPUP — SVG illustrations on hover
+// ═══════════════════════════════════════════════════════
+ 
+const PATTERN_SVG = {
+  // ── M15 PATTERNS ──
+  '5-wave impulse': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">5-WAVE IMPULSE</text>
+    <polyline points="20,90 50,40 70,65 110,15 130,45 160,25" fill="none" stroke="#0FD98A" stroke-width="2.5"/>
+    <circle cx="20" cy="90" r="3" fill="#0FD98A"/>
+    <circle cx="50" cy="40" r="3" fill="#0FD98A"/>
+    <circle cx="70" cy="65" r="3" fill="#0FD98A"/>
+    <circle cx="110" cy="15" r="3" fill="#0FD98A"/>
+    <circle cx="130" cy="45" r="3" fill="#0FD98A"/>
+    <circle cx="160" cy="25" r="3" fill="#0FD98A"/>
+    <text x="16" y="105" fill="#D4A843" font-size="9" font-family="monospace">0</text>
+    <text x="46" y="35" fill="#D4A843" font-size="9" font-family="monospace">1</text>
+    <text x="66" y="80" fill="#D4A843" font-size="9" font-family="monospace">2</text>
+    <text x="106" y="12" fill="#D4A843" font-size="9" font-family="monospace">3</text>
+    <text x="126" y="60" fill="#D4A843" font-size="9" font-family="monospace">4</text>
+    <text x="156" y="20" fill="#D4A843" font-size="9" font-family="monospace">5</text>
+  </svg>`,
+ 
+  '3-wave ZigZag (ABC)': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">ZIGZAG (ABC)</text>
+    <polyline points="20,25 80,85 120,45 180,95" fill="none" stroke="#F0455A" stroke-width="2.5"/>
+    <circle cx="20" cy="25" r="3" fill="#F0455A"/>
+    <circle cx="80" cy="85" r="3" fill="#F0455A"/>
+    <circle cx="120" cy="45" r="3" fill="#F0455A"/>
+    <circle cx="180" cy="95" r="3" fill="#F0455A"/>
+    <text x="14" y="20" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">A</text>
+    <text x="82" y="100" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">B</text>
+    <text x="114" y="40" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">C</text>
+    <line x1="20" y1="25" x2="180" y2="25" stroke="#D4A843" stroke-width="0.5" stroke-dasharray="3,3"/>
+    <line x1="20" y1="95" x2="180" y2="95" stroke="#D4A843" stroke-width="0.5" stroke-dasharray="3,3"/>
+  </svg>`,
+ 
+  'Flat — Regular': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">FLAT — REGULAR</text>
+    <polyline points="20,30 70,80 120,32 170,85" fill="none" stroke="#F0455A" stroke-width="2.5"/>
+    <circle cx="20" cy="30" r="3" fill="#F0455A"/>
+    <circle cx="70" cy="80" r="3" fill="#F0455A"/>
+    <circle cx="120" cy="32" r="3" fill="#F0455A"/>
+    <circle cx="170" cy="85" r="3" fill="#F0455A"/>
+    <text x="14" y="25" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">A</text>
+    <text x="72" y="97" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">B</text>
+    <text x="114" y="26" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">C≈A</text>
+    <line x1="20" y1="30" x2="120" y2="30" stroke="#3D8EF8" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="60" y="22" fill="#3D8EF8" font-size="8" font-family="monospace">B≈A</text>
+  </svg>`,
+ 
+  'Flat — Expanded': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">FLAT — EXPANDED</text>
+    <polyline points="20,35 70,85 130,20 175,95" fill="none" stroke="#F0455A" stroke-width="2.5"/>
+    <circle cx="20" cy="35" r="3" fill="#F0455A"/>
+    <circle cx="70" cy="85" r="3" fill="#F0455A"/>
+    <circle cx="130" cy="20" r="3" fill="#F0455A"/>
+    <circle cx="175" cy="95" r="3" fill="#F0455A"/>
+    <text x="14" y="30" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">A</text>
+    <text x="72" y="100" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">B</text>
+    <text x="132" y="16" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">C</text>
+    <line x1="20" y1="35" x2="175" y2="35" stroke="#3D8EF8" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="75" y="26" fill="#3D8EF8" font-size="8" font-family="monospace">B &gt; A</text>
+  </svg>`,
+ 
+  'Flat — Running': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">FLAT — RUNNING</text>
+    <polyline points="20,50 70,90 130,25 175,70" fill="none" stroke="#F0455A" stroke-width="2.5"/>
+    <circle cx="20" cy="50" r="3" fill="#F0455A"/>
+    <circle cx="70" cy="90" r="3" fill="#F0455A"/>
+    <circle cx="130" cy="25" r="3" fill="#F0455A"/>
+    <circle cx="175" cy="70" r="3" fill="#F0455A"/>
+    <text x="14" y="45" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">A</text>
+    <text x="72" y="105" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">B</text>
+    <text x="132" y="20" fill="#D4A843" font-size="10" font-family="monospace" font-weight="bold">C</text>
+    <line x1="20" y1="50" x2="175" y2="50" stroke="#3D8EF8" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="65" y="44" fill="#3D8EF8" font-size="8" font-family="monospace">B &gt; start, C short</text>
+  </svg>`,
+ 
+  'Triangle — Contracting': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">TRIANGLE — CONTRACTING</text>
+    <polyline points="20,20 55,85 90,35 125,72 155,48 180,58" fill="none" stroke="#3D8EF8" stroke-width="2"/>
+    <line x1="20" y1="20" x2="180" y2="48" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <line x1="20" y1="90" x2="180" y2="58" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <circle cx="20" cy="20" r="2.5" fill="#3D8EF8"/>
+    <circle cx="55" cy="85" r="2.5" fill="#3D8EF8"/>
+    <circle cx="90" cy="35" r="2.5" fill="#3D8EF8"/>
+    <circle cx="125" cy="72" r="2.5" fill="#3D8EF8"/>
+    <circle cx="155" cy="48" r="2.5" fill="#3D8EF8"/>
+    <text x="16" y="17" fill="#D4A843" font-size="8" font-family="monospace">a</text>
+    <text x="51" y="100" fill="#D4A843" font-size="8" font-family="monospace">b</text>
+    <text x="86" y="30" fill="#D4A843" font-size="8" font-family="monospace">c</text>
+    <text x="121" y="87" fill="#D4A843" font-size="8" font-family="monospace">d</text>
+    <text x="151" y="44" fill="#D4A843" font-size="8" font-family="monospace">e</text>
+  </svg>`,
+ 
+  'Triangle — Ascending': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">TRIANGLE — ASCENDING</text>
+    <polyline points="20,90 55,25 90,65 125,25 155,45 180,25" fill="none" stroke="#3D8EF8" stroke-width="2"/>
+    <line x1="20" y1="25" x2="180" y2="25" stroke="#D4A843" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="20" y1="90" x2="170" y2="45" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="40" y="20" fill="#D4A843" font-size="8" font-family="monospace">resistance flat</text>
+  </svg>`,
+ 
+  'Triangle — Descending': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">TRIANGLE — DESCENDING</text>
+    <polyline points="20,25 55,90 90,50 125,90 155,68 180,90" fill="none" stroke="#3D8EF8" stroke-width="2"/>
+    <line x1="20" y1="90" x2="180" y2="90" stroke="#D4A843" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="20" y1="25" x2="175" y2="68" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="40" y="105" fill="#D4A843" font-size="8" font-family="monospace">support flat</text>
+  </svg>`,
+ 
+  'Flag / Pennant': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">FLAG / PENNANT</text>
+    <line x1="40" y1="100" x2="40" y2="20" stroke="#0FD98A" stroke-width="2"/>
+    <polyline points="40,20 80,30 60,45 95,55 70,68 100,75" fill="none" stroke="#F0455A" stroke-width="1.8"/>
+    <line x1="40" y1="20" x2="100" y2="35" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="40" y1="50" x2="100" y2="75" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <polyline points="100,75 145,30" fill="none" stroke="#0FD98A" stroke-width="2.5" stroke-dasharray="5,3"/>
+    <text x="108" y="28" fill="#0FD98A" font-size="9" font-family="monospace">breakout</text>
+  </svg>`,
+ 
+  'Double Bottom': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">DOUBLE BOTTOM</text>
+    <polyline points="20,25 50,85 90,45 130,85 165,25" fill="none" stroke="#0FD98A" stroke-width="2.5"/>
+    <line x1="20" y1="45" x2="180" y2="45" stroke="#D4A843" stroke-width="1" stroke-dasharray="4,3"/>
+    <circle cx="50" cy="85" r="4" fill="none" stroke="#F0455A" stroke-width="1.5"/>
+    <circle cx="130" cy="85" r="4" fill="none" stroke="#F0455A" stroke-width="1.5"/>
+    <text x="80" y="40" fill="#D4A843" font-size="8" font-family="monospace">neckline</text>
+    <text x="155" y="22" fill="#0FD98A" font-size="9" font-family="monospace">↑</text>
+  </svg>`,
+ 
+  'Double Top': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">DOUBLE TOP</text>
+    <polyline points="20,90 50,30 90,65 130,30 165,90" fill="none" stroke="#F0455A" stroke-width="2.5"/>
+    <line x1="20" y1="65" x2="180" y2="65" stroke="#D4A843" stroke-width="1" stroke-dasharray="4,3"/>
+    <circle cx="50" cy="30" r="4" fill="none" stroke="#F0455A" stroke-width="1.5"/>
+    <circle cx="130" cy="30" r="4" fill="none" stroke="#F0455A" stroke-width="1.5"/>
+    <text x="80" y="78" fill="#D4A843" font-size="8" font-family="monospace">neckline</text>
+    <text x="155" y="105" fill="#F0455A" font-size="9" font-family="monospace">↓</text>
+  </svg>`,
+ 
+  'Head & Shoulders': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">HEAD & SHOULDERS</text>
+    <polyline points="15,85 40,55 60,75 95,20 130,72 150,50 175,85" fill="none" stroke="#F0455A" stroke-width="2"/>
+    <line x1="15" y1="75" x2="175" y2="75" stroke="#D4A843" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="35" y="50" fill="#6A85A8" font-size="8" font-family="monospace">L</text>
+    <text x="88" y="16" fill="#F0455A" font-size="8" font-family="monospace">HEAD</text>
+    <text x="145" y="46" fill="#6A85A8" font-size="8" font-family="monospace">R</text>
+    <text x="70" y="88" fill="#D4A843" font-size="8" font-family="monospace">neckline</text>
+  </svg>`,
+ 
+  'Wedge — Rising': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">WEDGE — RISING</text>
+    <polyline points="20,80 55,45 80,60 115,30 140,45 170,22" fill="none" stroke="#F0455A" stroke-width="2"/>
+    <line x1="20" y1="80" x2="175" y2="20" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <line x1="20" y1="95" x2="175" y2="45" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <polyline points="170,22 185,55" fill="none" stroke="#F0455A" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="170" y="70" fill="#F0455A" font-size="9" font-family="monospace">↓</text>
+  </svg>`,
+ 
+  'Wedge — Falling': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">WEDGE — FALLING</text>
+    <polyline points="20,25 55,60 80,45 115,72 140,58 170,80" fill="none" stroke="#0FD98A" stroke-width="2"/>
+    <line x1="20" y1="25" x2="175" y2="78" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <line x1="20" y1="15" x2="175" y2="60" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <polyline points="170,80 185,50" fill="none" stroke="#0FD98A" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="170" y="45" fill="#0FD98A" font-size="9" font-family="monospace">↑</text>
+  </svg>`,
+ 
+  'Ending Diagonal': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">ENDING DIAGONAL (W5/WC)</text>
+    <polyline points="20,90 50,50 70,68 100,35 118,52 145,22 155,38" fill="none" stroke="#D4A843" stroke-width="2"/>
+    <line x1="20" y1="90" x2="160" y2="20" stroke="#0FD98A" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <line x1="20" y1="100" x2="160" y2="40" stroke="#F0455A" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="22" y="86" fill="#D4A843" font-size="8" font-family="monospace">1</text>
+    <text x="46" y="46" fill="#D4A843" font-size="8" font-family="monospace">2</text>
+    <text x="66" y="84" fill="#D4A843" font-size="8" font-family="monospace">3</text>
+    <text x="96" y="31" fill="#D4A843" font-size="8" font-family="monospace">4</text>
+    <text x="141" y="18" fill="#D4A843" font-size="8" font-family="monospace">5</text>
+  </svg>`,
+ 
+  // ── CANDLE PATTERNS ──
+  'Engulfing Bullish': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">ENGULFING BULLISH</text>
+    <line x1="85" y1="30" x2="85" y2="95" stroke="#F0455A" stroke-width="1.5"/>
+    <rect x="72" y="45" width="26" height="40" fill="#F0455A" rx="1"/>
+    <line x1="120" y1="20" x2="120" y2="100" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="106" y="28" width="28" height="62" fill="#0FD98A" rx="1"/>
+    <text x="62" y="112" fill="#F0455A" font-size="9" font-family="monospace">Bear</text>
+    <text x="100" y="112" fill="#0FD98A" font-size="9" font-family="monospace">Bull engulf</text>
+    <line x1="72" y1="45" x2="106" y2="45" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="3,2"/>
+    <line x1="72" y1="85" x2="106" y2="85" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="3,2"/>
+  </svg>`,
+ 
+  'Engulfing Bearish': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">ENGULFING BEARISH</text>
+    <line x1="85" y1="25" x2="85" y2="90" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="72" y="35" width="26" height="40" fill="#0FD98A" rx="1"/>
+    <line x1="120" y1="20" x2="120" y2="100" stroke="#F0455A" stroke-width="1.5"/>
+    <rect x="106" y="28" width="28" height="62" fill="#F0455A" rx="1"/>
+    <text x="62" y="112" fill="#0FD98A" font-size="9" font-family="monospace">Bull</text>
+    <text x="100" y="112" fill="#F0455A" font-size="9" font-family="monospace">Bear engulf</text>
+    <line x1="72" y1="35" x2="106" y2="35" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="3,2"/>
+    <line x1="72" y1="75" x2="106" y2="75" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="3,2"/>
+  </svg>`,
+ 
+  'Pin Bar Bullish (Hammer)': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">PIN BAR BULLISH (HAMMER)</text>
+    <line x1="100" y1="25" x2="100" y2="92" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="88" y="64" width="24" height="20" fill="#0FD98A" rx="1"/>
+    <text x="72" y="112" fill="#6A85A8" font-size="9" font-family="monospace">long lower wick</text>
+    <line x1="40" y1="84" x2="160" y2="84" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="130" y="80" fill="#D4A843" font-size="8" font-family="monospace">support</text>
+  </svg>`,
+ 
+  'Pin Bar Bearish (Shooting Star)': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">SHOOTING STAR</text>
+    <line x1="100" y1="22" x2="100" y2="90" stroke="#F0455A" stroke-width="1.5"/>
+    <rect x="88" y="68" width="24" height="20" fill="#F0455A" rx="1"/>
+    <text x="68" y="112" fill="#6A85A8" font-size="9" font-family="monospace">long upper wick</text>
+    <line x1="40" y1="35" x2="160" y2="35" stroke="#D4A843" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="130" y="31" fill="#D4A843" font-size="8" font-family="monospace">resistance</text>
+  </svg>`,
+ 
+  'Doji + Bullish Follow Through': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">DOJI + FOLLOW THROUGH</text>
+    <line x1="75" y1="28" x2="75" y2="88" stroke="#C8D8F0" stroke-width="1.5"/>
+    <rect x="68" y="54" width="14" height="4" fill="#C8D8F0" rx="1"/>
+    <line x1="120" y1="30" x2="120" y2="70" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="108" y="42" width="24" height="28" fill="#0FD98A" rx="1"/>
+    <text x="58" y="112" fill="#6A85A8" font-size="8" font-family="monospace">doji</text>
+    <text x="100" y="112" fill="#0FD98A" font-size="8" font-family="monospace">confirm ↑</text>
+  </svg>`,
+ 
+  'Morning Star': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">MORNING STAR</text>
+    <line x1="55" y1="22" x2="55" y2="75" stroke="#F0455A" stroke-width="1.5"/>
+    <rect x="43" y="30" width="24" height="38" fill="#F0455A" rx="1"/>
+    <line x1="100" y1="68" x2="100" y2="88" stroke="#D4A843" stroke-width="1.5"/>
+    <rect x="91" y="72" width="18" height="10" fill="#D4A843" rx="1"/>
+    <line x1="145" y1="28" x2="145" y2="72" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="133" y="36" width="24" height="30" fill="#0FD98A" rx="1"/>
+    <text x="36" y="112" fill="#F0455A" font-size="8">Bear</text>
+    <text x="82" y="112" fill="#D4A843" font-size="8">Star</text>
+    <text x="128" y="112" fill="#0FD98A" font-size="8">Bull</text>
+  </svg>`,
+ 
+  'Evening Star': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">EVENING STAR</text>
+    <line x1="55" y1="35" x2="55" y2="88" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="43" y="42" width="24" height="36" fill="#0FD98A" rx="1"/>
+    <line x1="100" y1="28" x2="100" y2="48" stroke="#D4A843" stroke-width="1.5"/>
+    <rect x="91" y="32" width="18" height="10" fill="#D4A843" rx="1"/>
+    <line x1="145" y1="30" x2="145" y2="80" stroke="#F0455A" stroke-width="1.5"/>
+    <rect x="133" y="38" width="24" height="32" fill="#F0455A" rx="1"/>
+    <text x="36" y="112" fill="#0FD98A" font-size="8">Bull</text>
+    <text x="82" y="112" fill="#D4A843" font-size="8">Star</text>
+    <text x="128" y="112" fill="#F0455A" font-size="8">Bear</text>
+  </svg>`,
+ 
+  'Inside Bar Bullish': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">INSIDE BAR BULLISH</text>
+    <line x1="80" y1="22" x2="80" y2="92" stroke="#C8D8F0" stroke-width="1.5"/>
+    <rect x="66" y="32" width="28" height="52" fill="none" stroke="#C8D8F0" stroke-width="1.5" rx="1"/>
+    <line x1="125" y1="35" x2="125" y2="85" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="113" y="45" width="24" height="32" fill="#0FD98A" rx="1"/>
+    <text x="55" y="112" fill="#6A85A8" font-size="8">Mother bar</text>
+    <text x="105" y="112" fill="#0FD98A" font-size="8">Inside ↑</text>
+  </svg>`,
+ 
+  'Tweezer Bottom': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">TWEEZER BOTTOM</text>
+    <line x1="80" y1="25" x2="80" y2="88" stroke="#F0455A" stroke-width="1.5"/>
+    <rect x="68" y="35" width="24" height="45" fill="#F0455A" rx="1"/>
+    <line x1="120" y1="40" x2="120" y2="88" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="108" y="48" width="24" height="32" fill="#0FD98A" rx="1"/>
+    <line x1="55" y1="88" x2="165" y2="88" stroke="#D4A843" stroke-width="1.2"/>
+    <text x="65" y="108" fill="#D4A843" font-size="8" font-family="monospace">same low = support</text>
+  </svg>`,
+ 
+  'Tweezer Top': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">TWEEZER TOP</text>
+    <line x1="80" y1="28" x2="80" y2="90" stroke="#0FD98A" stroke-width="1.5"/>
+    <rect x="68" y="28" width="24" height="42" fill="#0FD98A" rx="1"/>
+    <line x1="120" y1="28" x2="120" y2="82" stroke="#F0455A" stroke-width="1.5"/>
+    <rect x="108" y="36" width="24" height="38" fill="#F0455A" rx="1"/>
+    <line x1="55" y1="28" x2="165" y2="28" stroke="#D4A843" stroke-width="1.2"/>
+    <text x="65" y="108" fill="#D4A843" font-size="8" font-family="monospace">same high = resistance</text>
+  </svg>`,
+ 
+  'Marubozu Bullish': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">MARUBOZU BULLISH</text>
+    <rect x="82" y="22" width="36" height="82" fill="#0FD98A" rx="1"/>
+    <text x="55" y="112" fill="#0FD98A" font-size="9" font-family="monospace">no wick — full body</text>
+  </svg>`,
+ 
+  'Marubozu Bearish': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">MARUBOZU BEARISH</text>
+    <rect x="82" y="22" width="36" height="82" fill="#F0455A" rx="1"/>
+    <text x="55" y="112" fill="#F0455A" font-size="9" font-family="monospace">no wick — full body</text>
+  </svg>`,
+ 
+  'BOS Candle (Break of Structure)': `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+    <text x="4" y="14" fill="#6A85A8" font-size="9" font-family="monospace">BREAK OF STRUCTURE</text>
+    <polyline points="20,80 50,55 70,68 90,42 110,55 130,28" fill="none" stroke="#C8D8F0" stroke-width="1.5"/>
+    <line x1="20" y1="42" x2="185" y2="42" stroke="#F0455A" stroke-width="1" stroke-dasharray="4,3"/>
+    <rect x="130" y="18" width="20" height="32" fill="#0FD98A" rx="1"/>
+    <line x1="140" y1="14" x2="140" y2="50" stroke="#0FD98A" stroke-width="1.5"/>
+    <text x="148" y="38" fill="#0FD98A" font-size="9" font-family="monospace">BOS ↑</text>
+    <text x="148" y="48" fill="#F0455A" font-size="8" font-family="monospace">prev HH</text>
+  </svg>`,
+}
+ 
+// Build popup element once
+let _popup = null
+function getPopup() {
+  if (_popup) return _popup
+  _popup = document.createElement('div')
+  _popup.id = 'patternPopup'
+  _popup.style.cssText = `
+    position:fixed; z-index:9999; pointer-events:none;
+    background:#0D1220; border:1px solid #253550;
+    border-radius:8px; padding:10px; box-shadow:0 8px 32px rgba(0,0,0,.6);
+    opacity:0; transition:opacity .15s; width:220px;
+  `
+  document.body.appendChild(_popup)
+  return _popup
+}
+ 
+function showPatternPopup(svgStr, x, y) {
+  const popup = getPopup()
+  popup.innerHTML = svgStr
+  // Position popup — avoid going off screen
+  const pw = 220, ph = 150
+  const vw = window.innerWidth, vh = window.innerHeight
+  let px = x + 16, py = y - 20
+  if (px + pw > vw) px = x - pw - 8
+  if (py + ph > vh) py = vh - ph - 10
+  if (py < 10) py = 10
+  popup.style.left = px + 'px'
+  popup.style.top  = py + 'px'
+  popup.style.opacity = '1'
+}
+ 
+function hidePatternPopup() {
+  const popup = getPopup()
+  popup.style.opacity = '0'
+}
+ 
+function attachPatternHover(selectId) {
+  const sel = document.getElementById(selectId)
+  if (!sel) return
+  sel.addEventListener('mousemove', e => {
+    const val = sel.value
+    if (PATTERN_SVG[val]) showPatternPopup(PATTERN_SVG[val], e.clientX, e.clientY)
+    else hidePatternPopup()
+  })
+  sel.addEventListener('change', e => {
+    const val = sel.value
+    if (PATTERN_SVG[val]) showPatternPopup(PATTERN_SVG[val], e.clientX, e.clientY)
+    else hidePatternPopup()
+  })
+  sel.addEventListener('mouseleave', hidePatternPopup)
+  sel.addEventListener('blur', hidePatternPopup)
+}
+ 
+// Hook into buildForm — attach after form is built
+const _origBuildForm = window._buildFormHooked
+function hookPatternPopups() {
+  attachPatternHover('f_m15pat')
+  attachPatternHover('f_candle')
+}
+// Expose so init can call it after buildForm
+window.hookPatternPopups = hookPatternPopups
  
