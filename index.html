@@ -60,12 +60,33 @@
         <h3 class="sidebar-title">TRADE LOG</h3>
         <div class="sidebar-filters">
           <input type="text" id="searchBox" class="search-input" placeholder="Cari..." oninput="renderSidebar()">
-          <select id="filterOutcome" class="filter-select" onchange="renderSidebar()">
-            <option value="">All</option>
-            <option value="WIN">WIN</option>
-            <option value="LOSS">LOSS</option>
-            <option value="BE">BE</option>
+        </div>
+        <div class="sidebar-filters" style="margin-top:6px;">
+          <select id="filterOutcome" class="filter-select" onchange="renderSidebar()" style="flex:1;">
+            <option value="">Semua Outcome</option>
+            <option value="WIN">✓ WIN</option>
+            <option value="LOSS">✗ LOSS</option>
+            <option value="BE">~ BE</option>
           </select>
+          <select id="filterBias" class="filter-select" onchange="renderSidebar()" style="flex:1;">
+            <option value="">Semua Bias</option>
+            <option value="LONG">LONG 📈</option>
+            <option value="SHORT">SHORT 📉</option>
+          </select>
+        </div>
+        <div class="sidebar-filters" style="margin-top:6px;">
+          <select id="filterWave" class="filter-select" onchange="renderSidebar()" style="flex:1;">
+            <option value="">Semua Wave</option>
+            <option value="W1">W1</option>
+            <option value="W2">W2</option>
+            <option value="W3">W3</option>
+            <option value="W4">W4</option>
+            <option value="W5">W5</option>
+            <option value="WA">WA</option>
+            <option value="WB">WB</option>
+            <option value="WC">WC</option>
+          </select>
+          <button class="btn btn-ghost" style="font-size:9px;padding:4px 8px;flex-shrink:0;" onclick="clearFilters()">✕ Reset</button>
         </div>
       </div>
       <div class="trade-list" id="tradeList">
@@ -118,11 +139,29 @@
       <div class="view" id="view-list">
         <div class="mobile-list-head">
           <input type="text" id="mSearchBox" class="search-input" placeholder="Cari trade..." oninput="renderMobileList()">
-          <select id="mFilterOutcome" class="filter-select" onchange="renderMobileList()">
-            <option value="">All</option>
-            <option value="WIN">WIN</option>
-            <option value="LOSS">LOSS</option>
-            <option value="BE">BE</option>
+        </div>
+        <div class="mobile-list-head" style="margin-bottom:8px;">
+          <select id="mFilterOutcome" class="filter-select" onchange="renderMobileList()" style="flex:1;">
+            <option value="">Semua Outcome</option>
+            <option value="WIN">✓ WIN</option>
+            <option value="LOSS">✗ LOSS</option>
+            <option value="BE">~ BE</option>
+          </select>
+          <select id="mFilterBias" class="filter-select" onchange="renderMobileList()" style="flex:1;">
+            <option value="">Semua Bias</option>
+            <option value="LONG">LONG 📈</option>
+            <option value="SHORT">SHORT 📉</option>
+          </select>
+          <select id="mFilterWave" class="filter-select" onchange="renderMobileList()" style="flex:1;">
+            <option value="">Semua Wave</option>
+            <option value="W1">W1</option>
+            <option value="W2">W2</option>
+            <option value="W3">W3</option>
+            <option value="W4">W4</option>
+            <option value="W5">W5</option>
+            <option value="WA">WA</option>
+            <option value="WB">WB</option>
+            <option value="WC">WC</option>
           </select>
         </div>
         <div id="mobileTradeList"></div>
