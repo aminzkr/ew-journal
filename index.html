@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080C14">
+<title>EW Journal · XAUUSD</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-mark">EW</div>
+      <div class="logo-info">
+        <div class="logo-title">XAUUSD JOURNAL</div>
+        <div class="logo-sub">ELLIOTT WAVE · MULTI-TF</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="sync-status" id="syncStatus">●  Connecting...</span>
+      <span class="trade-count" id="tradeCount"></span>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ CSV</button>
+      <button class="btn btn-gold btn-sm" onclick="newTrade()">＋ New</button>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV -->
+  <nav class="mobile-nav" id="mobileNav">
+    <div class="mnav-item active" data-view="form" onclick="showView('form',this)">
+      <span class="mnav-icon">✦</span><span class="mnav-label">Entry</span>
+    </div>
+    <div class="mnav-item" data-view="detail" onclick="showView('detail',this)">
+      <span class="mnav-icon">◎</span><span class="mnav-label">Detail</span>
+    </div>
+    <div class="mnav-item" data-view="history" onclick="showView('history',this)">
+      <span class="mnav-icon">≡</span><span class="mnav-label">History</span>
+    </div>
+    <div class="mnav-item" data-view="stats" onclick="showView('stats',this)">
+      <span class="mnav-icon">◈</span><span class="mnav-label">Stats</span>
+    </div>
+    <div class="mnav-item" data-view="list" onclick="showView('list',this)">
+      <span class="mnav-icon">☰</span><span class="mnav-label">Trades</span>
+    </div>
+  </nav>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- SIDEBAR (desktop only) -->
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <h3 class="sidebar-title">TRADE LOG</h3>
+        <div class="sidebar-filters">
+          <input type="text" id="searchBox" class="search-input" placeholder="Cari..." oninput="renderSidebar()">
+          <select id="filterOutcome" class="filter-select" onchange="renderSidebar()">
+            <option value="">All</option>
+            <option value="WIN">WIN</option>
+            <option value="LOSS">LOSS</option>
+            <option value="BE">BE</option>
+          </select>
+        </div>
+      </div>
+      <div class="trade-list" id="tradeList">
+        <div class="loading-state">Loading trades...</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- Desktop tabs -->
+      <div class="view-tabs desktop-only">
+        <div class="vtab active" data-view="form" onclick="showView('form',this)">✦ ENTRY</div>
+        <div class="vtab" data-view="detail" onclick="showView('detail',this)">◎ DETAIL</div>
+        <div class="vtab" data-view="history" onclick="showView('history',this)">≡ HISTORY</div>
+        <div class="vtab" data-view="stats" onclick="showView('stats',this)">◈ STATS</div>
+      </div>
+
+      <!-- VIEW: FORM -->
+      <div class="view active" id="view-form">
+        <div id="editBanner" class="edit-banner" style="display:none">
+          <span>✏ EDIT MODE — <b id="editLabel"></b></span>
+          <button class="btn btn-ghost btn-sm" onclick="cancelEdit()">✕ Cancel</button>
+        </div>
+        <div id="formContent"></div>
+      </div>
+
+      <!-- VIEW: DETAIL -->
+      <div class="view" id="view-detail">
+        <div id="detailContent">
+          <div class="empty-state"><div class="empty-icon">◎</div><p>Pilih trade untuk lihat detail</p></div>
+        </div>
+      </div>
+
+      <!-- VIEW: HISTORY -->
+      <div class="view" id="view-history">
+        <div id="histContent">
+          <div class="empty-state"><div class="empty-icon">≡</div><p>Belum ada data</p></div>
+        </div>
+      </div>
+
+      <!-- VIEW: STATS -->
+      <div class="view" id="view-stats">
+        <div id="statsContent">
+          <div class="empty-state"><div class="empty-icon">◈</div><p>Belum ada data untuk statistik</p></div>
+        </div>
+      </div>
+
+      <!-- VIEW: LIST (mobile trade list) -->
+      <div class="view" id="view-list">
+        <div class="mobile-list-head">
+          <input type="text" id="mSearchBox" class="search-input" placeholder="Cari trade..." oninput="renderMobileList()">
+          <select id="mFilterOutcome" class="filter-select" onchange="renderMobileList()">
+            <option value="">All</option>
+            <option value="WIN">WIN</option>
+            <option value="LOSS">LOSS</option>
+            <option value="BE">BE</option>
+          </select>
+        </div>
+        <div id="mobileTradeList"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <div class="lb-close" onclick="closeLightbox()">✕</div>
+  <img id="lbImg" src="" alt="chart">
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
